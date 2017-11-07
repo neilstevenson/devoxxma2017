@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "bootstrap-servers",
+  "type": "java.lang.String",
+  "description": "Kafka server host:port list, comma separated"
+}]}
