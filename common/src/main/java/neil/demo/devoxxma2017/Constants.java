@@ -11,14 +11,18 @@ public class Constants {
 
 	// Hazelcast
 	public static final String COMMAND_NOUN_KAFKA = "kafka";
+	public static final String COMMAND_NOUN_SPEEDO = "speedo";
 	public static final String COMMAND_VERB_START = "start";
 	public static final String COMMAND_VERB_STOP = "stop";
 	public static final String IMAP_NAME_COMMAND = "command";
 	public static final String IMAP_NAME_POSITION = "position";
 	public static final String IMAP_NAME_SPEED = "speed";
 
+	// JFreechart
+	public static final String SPEEDO_PANEL_TITLE = "Speedometer";
+
 	// Kafka, partition count must match "print-topic.sh" script. Would be better to derive
 	public static final int TOPIC_NAME_GPX_PARTITION_COUNT = 3;
 	public static final String TOPIC_NAME_GPX = "gpx";
-	
+
 }

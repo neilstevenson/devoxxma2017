@@ -1,6 +1,7 @@
 package neil.demo.devoxxma2017;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,8 +18,6 @@ import lombok.Data;
  * <p>Sections in the input, such as "{@code <metadata>}" that are not defined here
  * are ignored. Only define the parts we want, the GPS points themselves.
  * <p>
- * <p>All fields here are treated as Strings, even though some are numerics.
- * </p>
  */
 @Data
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -64,13 +63,13 @@ public class Gpx {
                 private static final long serialVersionUID = 1L;
                 
                 @XmlAttribute(name = "lat")
-                private String latitude;
+                private double latitude;
                 @XmlAttribute(name = "lon")
-                private String longitude;
+                private double longitude;
                 @XmlElement(name = "ele", namespace = NAMESPACE)
-                private String elevation;
+                private double elevation;
                 @XmlElement(name = "time", namespace = NAMESPACE)
-                protected String time;
+                protected Date date;
         }
 
 }

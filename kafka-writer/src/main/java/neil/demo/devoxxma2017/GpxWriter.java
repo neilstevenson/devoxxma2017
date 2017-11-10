@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -63,14 +64,19 @@ public class GpxWriter implements CommandLineRunner {
     			
     			Map<String, List<TrkPt>> testData = this.loadTestData();
                  
-            // Find length of longest list of tracking points
+            // Find info on list of tracking points
             int max = 0;
+            int total = 0;
             for (List<TrkPt> list : testData.values()) {
             		if (list.size() > max) {
             			max = list.size();
             		}
+            		total += list.size(); 
             }
             
+            // Wait for all callbacks
+			CountDownLatch countDownLatch = new CountDownLatch(total);
+			
             for (int i = 0 ; i < max ; i++) {
             	
             		// Space out the writes so 3600 take 30 seconds 
@@ -96,28 +102,30 @@ public class GpxWriter implements CommandLineRunner {
                                                 recordMetadata.offset(), recordMetadata.partition(),
                                                 recordMetadata.timestamp(), producerRecord.value());   
                                                 onSuccessCount[recordMetadata.partition()].incrementAndGet();
+                                                countDownLatch.countDown();
                                        }
 
                                        @Override
                                        public void onFailure(Throwable t) {
                                                log.error("onFailure()", t);
                                                onFailureCount.incrementAndGet();
+                                               countDownLatch.countDown();
                                        }
                                 }
                                 );
             				
-            				sendResult.get();
             			}
             		}
             }
+
+            // Await callbacks
+            countDownLatch.await();
             
             if (onFailureCount.get() > 0) {
             		throw new RuntimeException(onFailureCount.get() + " failures writing to Kafka");
             } else {
-            		int total=0;
             		for (int i = 0; i < Constants.TOPIC_NAME_GPX_PARTITION_COUNT ; i++) {
-            			log.info("Wrote {} tracking points to paritition {}", onSuccessCount[i].get(), i);
-            			total += onSuccessCount[i].get();
+            			log.info("Wrote {} tracking points to partition {}", onSuccessCount[i].get(), i);
             		}
             		log.info("=> Total written successfully {}", total);
             }

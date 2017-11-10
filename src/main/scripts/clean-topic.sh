@@ -16,7 +16,7 @@ cat $TMPFILE
 
 COUNT=30
 /bin/echo -n Waiting for Kafka shutdown.
-while [ \( `jps | grep -w Kafka | cut -d" " -f2 | wc -l` -eq 1 \) -a \( $COUNT -gt 0 \) ]
+while [ \( `jps | grep -w Kafka | cut -d" " -f2 | wc -l` -ge 1 \) -a \( $COUNT -gt 0 \) ]
 do
   /bin/echo -n .
   COUNT=$[$COUNT - 1]
