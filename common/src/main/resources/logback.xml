@@ -36,6 +36,9 @@
     <logger name="com.hazelcast.jet" level="info" additivity="false">
         <appender-ref ref="SYSOUT_YELLOW"/>
     </logger>
+    <logger name="com.hazelcast.jet.internal" level="warn" additivity="false">
+        <appender-ref ref="SYSOUT_RED"/>
+    </logger>
     <logger name="com.hazelcast.internal.cluster" level="info" additivity="false">
         <appender-ref ref="SYSOUT_BLUE"/>
     </logger>
