@@ -20,6 +20,8 @@ public class Constants {
 
 	// JFreechart
 	public static final String SPEEDO_PANEL_TITLE = "Speedometer";
+	public static final String SPEEDO_PANEL_X_AXIS = "Time";
+	public static final String SPEEDO_PANEL_Y_AXIS = "Speed (m/s)";
 
 	// Kafka, partition count must match "print-topic.sh" script. Would be better to derive
 	public static final int TOPIC_NAME_GPX_PARTITION_COUNT = 3;
