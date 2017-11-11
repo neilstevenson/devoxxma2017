@@ -16,9 +16,12 @@ import neil.demo.devoxxma2017.jet.Speedo;
 
 /**
  * <p>A map listener that responds to events in a map named "{@code command}".
- * Entries are written to the map in the form (<b>verb</b>,<b>noun</b>).
- * For example "{@code start,kafka}" means a request to start the Kafka
+ * Entries are written to the map in the form (<b>noun</b>,<b>verb</b>).
+ * For example "{@code kafka,start}" means a request to start the Kafka
  * job.
+ * </p>
+ * <p>As the <b>noun</b> is the key, commands for same noun (<b>start</b> and
+ * <b>stop</b>) are handled by the same server, due to key affinity.
  * </p>
  * <p>Note these commands are requests. The listener can chose to ignore
  * them, for example if a request is made to start a job that is already
@@ -66,16 +69,17 @@ public class CommandListener implements EntryAddedListener<String, String[]>, En
 	 * @throws Exception
 	 */
 	private void handle(EntryEvent<String, String[]> arg0) throws Exception {
-		String verb = arg0.getKey();
-		String[] params = arg0.getValue();
+		log.info("'{}' '{}'", arg0.getKey(), arg0.getValue());
 
-		log.info("'{}' '{}'", verb, params);
+		String noun = arg0.getKey();
+		String[] params = arg0.getValue();
+		String verb = params[0];
 		
 		if (verb.equalsIgnoreCase(Constants.COMMAND_VERB_START)) {
-			this.handleStart(params);
+			this.handleStart(noun, (params.length==1 ? null : params[1]));
 		} else {
 			if (verb.equals(Constants.COMMAND_VERB_STOP)) {
-				this.handleStop(params);
+				this.handleStop(noun);
 			} else {
 				log.error("Unknown command verb '{}'", verb);
 			}
@@ -87,19 +91,20 @@ public class CommandListener implements EntryAddedListener<String, String[]>, En
 	 * <p>Start a job, if not running.
 	 * </p>
 	 *
-	 * @param params Job name and any required params
+	 * @param name Job name
+	 * @param param Any required params
 	 */
-	private void handleStart(String[] params) {
-		if (params[0].equalsIgnoreCase(Constants.COMMAND_NOUN_KAFKA)) {
+	private void handleStart(String noun, String params) {
+		if (noun.equalsIgnoreCase(Constants.COMMAND_NOUN_KAFKA)) {
 			if (this.kafka == null) {
-				DAG dag = ReadKafka.build(params[1]);
+				DAG dag = ReadKafka.build(params);
 				this.kafka = this.jetInstance.newJob(dag);
 				log.info("Started Kafka Reader, job id {}", this.kafka.getJobId());
 			} else {
 				log.info("Ignoring start request, Kakfa Reader job id {} already running", this.kafka.getJobId());
 			}
 		} else {
-			if (params[0].equalsIgnoreCase(Constants.COMMAND_NOUN_SPEEDO)) {
+			if (noun.equalsIgnoreCase(Constants.COMMAND_NOUN_SPEEDO)) {
 				if (this.speedo == null) {
 					DAG dag = Speedo.build();
 					this.speedo = this.jetInstance.newJob(dag);
@@ -108,7 +113,7 @@ public class CommandListener implements EntryAddedListener<String, String[]>, En
 					log.info("Ignoring start request, Speedo job id {} already running", this.speedo.getJobId());
 				}
 			} else {
-				log.error("Unknown command noun '{}'", params[0]);
+				log.error("Unknown command noun '{}'", noun);
 			}
 		}
 	}
@@ -118,10 +123,10 @@ public class CommandListener implements EntryAddedListener<String, String[]>, En
 	 * <p>Stop a job, if running.
 	 * </p>
 	 *
-	 * @param params Job name
+	 * @param noun Job name
 	 */
-	private void handleStop(String[] params) {
-		if (params[0].equalsIgnoreCase(Constants.COMMAND_NOUN_KAFKA)) {
+	private void handleStop(String noun) {
+		if (noun.equalsIgnoreCase(Constants.COMMAND_NOUN_KAFKA)) {
 			if (this.kafka != null) {
 				log.info("Stopping Kafka Reader, job id {}", this.kafka.getJobId());
 				this.kafka = null;
@@ -129,7 +134,7 @@ public class CommandListener implements EntryAddedListener<String, String[]>, En
 				log.info("Ignoring stop request, Kakfa Reader job is not running");
 			}
 		} else {
-			if (params[0].equalsIgnoreCase(Constants.COMMAND_NOUN_SPEEDO)) {
+			if (noun.equalsIgnoreCase(Constants.COMMAND_NOUN_SPEEDO)) {
 				if (this.speedo != null) {
 					log.info("Stopping Speedo, job id {}", this.speedo.getJobId());
 					this.speedo = null;
@@ -137,7 +142,7 @@ public class CommandListener implements EntryAddedListener<String, String[]>, En
 					log.info("Ignoring stop request, Speedo job is not running");
 				}
 			} else {
-				log.error("Unknown command noun '{}'", params[0]);
+				log.error("Unknown command noun '{}'", noun);
 			}
 		}
 	}

@@ -19,8 +19,8 @@ import com.hazelcast.core.IMap;
  * to the Spring Shell CLI.
  * </p>
  * <p>Mainly these commands are requests to control Jet jobs,
- * in (<b>verb</b>,<b>noun</b>) format. For example,
- * "{@code start,kafka}" and "{@code stop,kafka}".
+ * in (<b>noun</b>,<b>verb</b>) format. For example,
+ * "{@code kafka,start}" and "{@code kafka,stop}".
  * </p>
  * <p>We request these rather than initiate them directly,
  * as it's easier for the command listener to track only
@@ -35,14 +35,14 @@ public class ApplicationCommands implements CommandMarker {
 
 	private static final String DISTRIBUTED_OBJECT_INTERNAL_PREFIX = "__";
 	
-	private static final String START_KAFKA
-		= Constants.COMMAND_VERB_START + "-" + Constants.COMMAND_NOUN_KAFKA;
-	private static final String START_SPEEDO
-		= Constants.COMMAND_VERB_START + "-" + Constants.COMMAND_NOUN_SPEEDO;
-	private static final String STOP_KAFKA
-		= Constants.COMMAND_VERB_STOP + "-" + Constants.COMMAND_NOUN_KAFKA;
-	private static final String STOP_SPEEDO
-		= Constants.COMMAND_VERB_STOP + "-" + Constants.COMMAND_NOUN_SPEEDO;
+	private static final String KAFKA_START
+		= Constants.COMMAND_NOUN_KAFKA + "-" + Constants.COMMAND_VERB_START;
+	private static final String KAFKA_STOP
+		= Constants.COMMAND_NOUN_KAFKA + "-" + Constants.COMMAND_VERB_STOP;
+	private static final String SPEEDO_START
+		= Constants.COMMAND_NOUN_SPEEDO + "-" + Constants.COMMAND_VERB_START;
+	private static final String SPEEDO_STOP
+		= Constants.COMMAND_NOUN_SPEEDO + "-" + Constants.COMMAND_VERB_STOP;
 	
 	private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -55,38 +55,19 @@ public class ApplicationCommands implements CommandMarker {
 	 * <p>Request the Kafka stream reader be started.
 	 * </p>
 	 */
-	@CliCommand(value = START_KAFKA,
+	@CliCommand(value = KAFKA_START,
 				help = "Request initiation of the Kafka Reader")
 	public String startKafka() {
 		
 		IMap<String, String[]> commandMap = this.hazelcastInstance.getMap(Constants.IMAP_NAME_COMMAND);
 
 		String[] params = new String[2];
-		params[0] = Constants.COMMAND_NOUN_KAFKA;
+		params[0] = Constants.COMMAND_VERB_START;
 		params[1] = this.bootstrapServers;
 		
-		commandMap.put(Constants.COMMAND_VERB_START, params);
+		commandMap.put(Constants.COMMAND_NOUN_KAFKA, params);
 		
 		return String.format("Requested %s job '%s'", Constants.COMMAND_VERB_START, Constants.COMMAND_NOUN_KAFKA);
-	}
-	
-
-	/**
-	 * <p>Request the speed stream reader be started.
-	 * </p>
-	 */
-	@CliCommand(value = START_SPEEDO,
-				help = "Request initiation of the Speedometer")
-	public String startSpeedo() {
-		
-		IMap<String, String[]> commandMap = this.hazelcastInstance.getMap(Constants.IMAP_NAME_COMMAND);
-
-		String[] params = new String[1];
-		params[0] = Constants.COMMAND_NOUN_SPEEDO;
-		
-		commandMap.put(Constants.COMMAND_VERB_START, params);
-		
-		return String.format("Requested %s job '%s'", Constants.COMMAND_VERB_START, Constants.COMMAND_NOUN_SPEEDO);
 	}
 
 	
@@ -94,18 +75,37 @@ public class ApplicationCommands implements CommandMarker {
 	 * <p>Request the Kafka stream reader be stopped.
 	 * </p>
 	 */
-	@CliCommand(value = STOP_KAFKA,
+	@CliCommand(value = KAFKA_STOP,
 				help = "Request halt for the Kafka Reader")
 	public String stopKafka() {
 		
 		IMap<String, String[]> commandMap = this.hazelcastInstance.getMap(Constants.IMAP_NAME_COMMAND);
 
 		String[] params = new String[1];
-		params[0] = Constants.COMMAND_NOUN_KAFKA;
+		params[0] = Constants.COMMAND_VERB_STOP;
 		
-		commandMap.put(Constants.COMMAND_VERB_STOP, params);
+		commandMap.put(Constants.COMMAND_NOUN_KAFKA, params);
 		
 		return String.format("Requested %s job '%s'", Constants.COMMAND_VERB_STOP, Constants.COMMAND_NOUN_KAFKA);
+	}
+	
+
+	/**
+	 * <p>Request the speed stream reader be started.
+	 * </p>
+	 */
+	@CliCommand(value = SPEEDO_START,
+				help = "Request initiation of the Speedometer")
+	public String startSpeedo() {
+		
+		IMap<String, String[]> commandMap = this.hazelcastInstance.getMap(Constants.IMAP_NAME_COMMAND);
+
+		String[] params = new String[1];
+		params[0] = Constants.COMMAND_VERB_START;
+		
+		commandMap.put(Constants.COMMAND_NOUN_SPEEDO, params);
+		
+		return String.format("Requested %s job '%s'", Constants.COMMAND_VERB_START, Constants.COMMAND_NOUN_SPEEDO);
 	}
 
 	
@@ -113,16 +113,16 @@ public class ApplicationCommands implements CommandMarker {
 	 * <p>Request the speed stream reader be stopped.
 	 * </p>
 	 */
-	@CliCommand(value = STOP_SPEEDO,
+	@CliCommand(value = SPEEDO_STOP,
 				help = "Request halt for the Speedometer")
 	public String stopSpeedo() {
 		
 		IMap<String, String[]> commandMap = this.hazelcastInstance.getMap(Constants.IMAP_NAME_COMMAND);
 
 		String[] params = new String[1];
-		params[0] = Constants.COMMAND_NOUN_SPEEDO;
+		params[0] = Constants.COMMAND_VERB_STOP;
 		
-		commandMap.put(Constants.COMMAND_VERB_STOP, params);
+		commandMap.put(Constants.COMMAND_NOUN_SPEEDO, params);
 		
 		return String.format("Requested %s job '%s'", Constants.COMMAND_VERB_STOP, Constants.COMMAND_NOUN_SPEEDO);
 	}
