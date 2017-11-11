@@ -104,7 +104,15 @@ public class Speedo {
 	 *                    |
 	 *                    |
 	 *              +----------+
-	 *              |7  IMap   |
+	 *              |7  Print  |
+	 *              |   Out    |
+	 *              |          |
+	 *              +----------+
+	 *                    |
+	 *                    |
+	 *                    |
+	 *              +----------+
+	 *              |8  IMap   |
 	 *              |  "speed" |
 	 *              |   Sink   |
 	 *              +----------+
@@ -175,9 +183,25 @@ public class Speedo {
 	 * are discarded.
 	 * </p>
 	 * </li>
-	 * <li><b>Step 7</b>
-	 * <p>Step 7 is a "<i>sink</i>", the entries produced by step 4 that
-	 * haven't been discarded by step 5 are saved to a {@link com.hazelcast.core.IMap IMap}
+	 * <li><b>Step 6</b>
+	 * <p>This is a "<i>processor</i>" stage, where the processing consists of
+	 * logging the input and copying it to output.
+	 * </p>
+	 * <p>This is done here to demonstrate how to write your own. Unlike {@link ReadKafka}
+	 * which uses a terminal processor (or "<i>sink</i>") in parallel to another terminal
+	 * processor doing the save to the {@link com.hazelcast.core.IMap IMap}, this approach
+	 * is an intermediate processor passing output to the terminal processor that saves
+	 * to the {@link com.hazelcast.core.IMap IMap}.
+	 * </p>
+	 * <p>There are advantages and disadvantages to each approach. It's fractionally harder
+	 * to remove the intermediate processor from the graph than to do so for an extra
+	 * terminal processor. Conversely, this gives sequentiality, we can see the data before
+	 * it goes to the {@link com.hazelcast.core.IMap IMap}.
+	 * </p>
+	 * </li>
+	 * <li><b>Step 8</b>
+	 * <p>Step 8 is a "<i>sink</i>", the entries produced by step 5 that
+	 * haven't been discarded by step 6 are saved to a {@link com.hazelcast.core.IMap IMap}
 	 * named "{@code speed}".
 	 * </p>
 	 * </li>
@@ -239,7 +263,9 @@ public class Speedo {
         Vertex step6 = dag.newVertex("removeStationary",
         		Processors.filterP((Map.Entry<String,Speed> entry) -> entry.getValue().getMetresPerSecond() > 0));
 
-        Vertex step7 = dag.newVertex("mapSink", SinkProcessors.writeMapP(Constants.IMAP_NAME_SPEED));
+        Vertex step7 = dag.newVertex("logger", SpeedoLogger::new);
+
+        Vertex step8 = dag.newVertex("mapSink", SinkProcessors.writeMapP(Constants.IMAP_NAME_SPEED));
 
         /* Connect the steps together, in a simple chain, the output of one becomes
 		 * the input to the next.
@@ -250,6 +276,7 @@ public class Speedo {
 		dag.edge(Edge.between(step4, step5));
 		dag.edge(Edge.between(step5, step6));
 		dag.edge(Edge.between(step6, step7));
+		dag.edge(Edge.between(step7, step8));
 		
 		return dag;
 	}
