@@ -39,6 +39,9 @@
     <logger name="com.hazelcast.jet.impl" level="info" additivity="false">
         <appender-ref ref="SYSOUT_MAGENTA"/>
     </logger>
+    <logger name="com.hazelcast.jet.impl.JetService" level="info" additivity="false">
+        <appender-ref ref="SYSOUT_YELLOW"/>
+    </logger>
     <logger name="com.hazelcast.jet.impl.connector.WriteLoggerP" level="info" additivity="false">
         <appender-ref ref="SYSOUT_WHITE"/>
     </logger>
