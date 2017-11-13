@@ -18,15 +18,12 @@ import com.hazelcast.spi.properties.GroupProperty;
 import com.hazelcast.zookeeper.ZookeeperDiscoveryProperties;
 import com.hazelcast.zookeeper.ZookeeperDiscoveryStrategyFactory;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * <p>
  * Additional Spring beans to configure the application.
  * </p>
  */
 @Configuration
-@Slf4j
 public class ApplicationConfig {
 
 	/**
@@ -43,9 +40,10 @@ public class ApplicationConfig {
 
 		/*
 		 * If in Docker, turn off TCP in favour of on Zookeeper discovery.
-		 * Mostly preset except Zookeeper IP
+		 * Mostly preset except Zookeeper IP. System.out is better for Docker explorer
 		 */
 		String zookeeper = environment.getProperty(Constants.ZOOKEEPER_IP_PROPERTY_NAME);
+		System.out.println(Constants.ZOOKEEPER_IP_PROPERTY_NAME + "==" + zookeeper);
 		if (zookeeper!=null) {
 			config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);
 
@@ -60,11 +58,14 @@ public class ApplicationConfig {
 			discoveryStrategyConfig.addProperty(ZookeeperDiscoveryProperties.GROUP.key(), config.getGroupConfig().getName());
 
 			for (Entry<String, ?> entry: discoveryStrategyConfig.getProperties().entrySet()) {
-				log.info("Discovery property '{}'=='{}'", entry.getKey(), entry.getValue());
+				System.out.printf("Discovery property '%s'=='%s'%n", entry.getKey(), entry.getValue());
 			}
 			
 			config.getNetworkConfig().getJoin().getDiscoveryConfig()
 					.addDiscoveryStrategyConfig(discoveryStrategyConfig);
+			
+			// For proof, Management Centre on same host as Zookeeper
+			config.getManagementCenterConfig().setEnabled(true).setUrl("http://" + zookeeper + ":8080/mancenter");
 		}
 
 		return config;

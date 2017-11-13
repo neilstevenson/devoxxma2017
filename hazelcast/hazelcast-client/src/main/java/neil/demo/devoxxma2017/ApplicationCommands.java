@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
+import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,20 +55,34 @@ public class ApplicationCommands implements CommandMarker {
 	/**
 	 * <p>Request the Kafka stream reader be started.
 	 * </p>
+	 * 
+	 * @param kafka (Optional) Kafka servers to use instead of {@code "${bootstrap-servers}"
 	 */
 	@CliCommand(value = KAFKA_START,
 				help = "Request initiation of the Kafka Reader")
-	public String startKafka() {
+	public String startKafka(
+			
+            @CliOption(key = {"kafka"}
+            , mandatory = false
+            , help = "Optionally '--kafka 127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094' to specify Kafka"
+            		)
+            final String kafka
+
+			) {
 		
 		IMap<String, String[]> commandMap = this.hazelcastInstance.getMap(Constants.IMAP_NAME_COMMAND);
 
 		String[] params = new String[2];
 		params[0] = Constants.COMMAND_VERB_START;
-		params[1] = this.bootstrapServers;
-		
+		if (kafka==null || kafka.length()==0) {
+			params[1] = this.bootstrapServers;
+		} else {
+			params[1] = kafka;
+		}
+				
 		commandMap.put(Constants.COMMAND_NOUN_KAFKA, params);
 		
-		return String.format("Requested %s job '%s'", Constants.COMMAND_VERB_START, Constants.COMMAND_NOUN_KAFKA);
+		return String.format("Requested %s job '%s' with %s", Constants.COMMAND_VERB_START, Constants.COMMAND_NOUN_KAFKA, params[1]);
 	}
 
 	
