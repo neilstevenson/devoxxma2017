@@ -27,4 +27,8 @@ public class Constants {
 	public static final int TOPIC_NAME_GPX_PARTITION_COUNT = 3;
 	public static final String TOPIC_NAME_GPX = "gpx";
 
+	// Zookeeper, if used for Hazelcast discovery from Docker
+	public static final String ZOOKEEPER_HAZELCAST_PATH = "/discovery/hazelcast";
+	public static final String ZOOKEEPER_IP_PROPERTY_NAME = "zkip";
+
 }

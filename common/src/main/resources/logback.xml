@@ -32,7 +32,18 @@
         </encoder>
     </appender>
 
-	<!-- A selection of Hazelcast system messages -->
+	<!-- Zookeeper discovery, if used -->
+    <logger name="org.apache" level="info" additivity="false">
+        <appender-ref ref="SYSOUT_BLUE"/>
+    </logger>
+
+	<!-- A selection of Hazelcast system messages, "com.hazelcast" at INFO is default -->
+    <logger name="com.hazelcast.core" level="info" additivity="false">
+        <appender-ref ref="SYSOUT_CYAN"/>
+    </logger>
+    <logger name="com.hazelcast.client.spi" level="info" additivity="false">
+        <appender-ref ref="SYSOUT_BLUE"/>
+    </logger>
     <logger name="com.hazelcast.jet" level="info" additivity="false">
         <appender-ref ref="SYSOUT_YELLOW"/>
     </logger>
@@ -51,8 +62,8 @@
     <logger name="com.hazelcast.nio" level="info" additivity="false">
         <appender-ref ref="SYSOUT_CYAN"/>
     </logger>
-    <logger name="com.hazelcast.core" level="info" additivity="false">
-        <appender-ref ref="SYSOUT_CYAN"/>
+    <logger name="com.hazelcast.zookeeper" level="trace" additivity="false">
+        <appender-ref ref="SYSOUT_MAGENTA"/>
     </logger>
     
     <!-- Code for the sample -->
