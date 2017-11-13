@@ -28,7 +28,7 @@ import com.hazelcast.core.IMap;
  * one instance of the job runs than to do it here.
  * </p>
  * <p>There's a bit of repetition in the coding for starting
- * and stopping the different job kinds, easily refactored.
+ * and stopping the different job kinds, easily re-factored.
  * </p>
  */
 @Component
@@ -44,6 +44,9 @@ public class ApplicationCommands implements CommandMarker {
 		= Constants.COMMAND_NOUN_SPEEDO + "-" + Constants.COMMAND_VERB_START;
 	private static final String SPEEDO_STOP
 		= Constants.COMMAND_NOUN_SPEEDO + "-" + Constants.COMMAND_VERB_STOP;
+	// Wordcount is not a continuous job, ends when input exhausted
+	private static final String WORDCOUNT_START
+		= Constants.COMMAND_NOUN_WORDCOUNT + "-" + Constants.COMMAND_VERB_START;
 	
 	private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -140,6 +143,26 @@ public class ApplicationCommands implements CommandMarker {
 		commandMap.put(Constants.COMMAND_NOUN_SPEEDO, params);
 		
 		return String.format("Requested %s job '%s'", Constants.COMMAND_VERB_STOP, Constants.COMMAND_NOUN_SPEEDO);
+	}
+	
+
+	/**
+	 * <p>Request the word count job be run. There is no STOP
+	 * needed as this is not a continuous job.
+	 * </p>
+	 */
+	@CliCommand(value = WORDCOUNT_START,
+				help = "Request Wordcount runs to completion")
+	public String wordcount() {
+		
+		IMap<String, String[]> commandMap = this.hazelcastInstance.getMap(Constants.IMAP_NAME_COMMAND);
+
+		String[] params = new String[1];
+		params[0] = Constants.COMMAND_VERB_START;
+		
+		commandMap.put(Constants.COMMAND_NOUN_WORDCOUNT, params);
+		
+		return String.format("Requested %s job '%s'", Constants.COMMAND_VERB_START, Constants.COMMAND_NOUN_WORDCOUNT);
 	}
 
 	

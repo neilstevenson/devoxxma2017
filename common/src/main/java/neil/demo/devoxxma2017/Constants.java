@@ -12,11 +12,19 @@ public class Constants {
 	// Hazelcast
 	public static final String COMMAND_NOUN_KAFKA = "kafka";
 	public static final String COMMAND_NOUN_SPEEDO = "speedo";
+	public static final String COMMAND_NOUN_WORDCOUNT = "wordcount";
 	public static final String COMMAND_VERB_START = "start";
 	public static final String COMMAND_VERB_STOP = "stop";
 	public static final String IMAP_NAME_COMMAND = "command";
+	public static final String IMAP_NAME_HAMLET = "hamlet";
 	public static final String IMAP_NAME_POSITION = "position";
 	public static final String IMAP_NAME_SPEED = "speed";
+	public static final String IMAP_NAME_WORDS = "words";
+	
+	public static final String[] IMAP_NAMES = {
+		IMAP_NAME_COMMAND, IMAP_NAME_HAMLET, IMAP_NAME_POSITION, IMAP_NAME_SPEED, IMAP_NAME_WORDS
+	};
+	
 
 	// JFreechart
 	public static final String SPEEDO_PANEL_TITLE = "Speedometer";

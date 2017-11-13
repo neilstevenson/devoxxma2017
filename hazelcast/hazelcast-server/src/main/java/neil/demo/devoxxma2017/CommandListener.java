@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
+import com.hazelcast.jet.Pipeline;
 import com.hazelcast.jet.core.DAG;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
@@ -13,6 +14,7 @@ import com.hazelcast.map.listener.EntryUpdatedListener;
 import lombok.extern.slf4j.Slf4j;
 import neil.demo.devoxxma2017.jet.ReadKafka;
 import neil.demo.devoxxma2017.jet.Speedo;
+import neil.demo.devoxxma2017.jet.WordCount;
 
 /**
  * <p>A map listener that responds to events in a map named "{@code command}".
@@ -113,7 +115,18 @@ public class CommandListener implements EntryAddedListener<String, String[]>, En
 					log.info("Ignoring start request, Speedo job id {} already running", this.speedo.getJobId());
 				}
 			} else {
-				log.error("Unknown command noun '{}'", noun);
+				if (noun.equalsIgnoreCase(Constants.COMMAND_NOUN_WORDCOUNT)) {
+					Pipeline wordcount = WordCount.build();
+					log.info("Starting wordcount and waiting completion");
+					try {
+						this.jetInstance.newJob(wordcount).join();
+						log.info("Wordcount done.");
+					} catch (Exception e) {
+						log.error("Wordcount", e);
+					}
+				} else {
+					log.error("Unknown command noun '{}'", noun);
+				}
 			}
 		}
 	}
@@ -121,6 +134,9 @@ public class CommandListener implements EntryAddedListener<String, String[]>, En
 	
 	/**
 	 * <p>Stop a job, if running.
+	 * </p>
+	 * <p>Not needed for wordcount, which shuts down when all
+	 * input processed.
 	 * </p>
 	 *
 	 * @param noun Job name
