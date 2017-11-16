@@ -233,7 +233,8 @@ public class Speedo {
 		/* Define the steps of processing, see diagram above
 		 */
 		Vertex step1 = dag.newVertex("eventJournal", 
-				SourceProcessors.streamMapP(Constants.IMAP_NAME_POSITION, NO_SELECTION_FILTER, NO_PROJECTION_FILTER, START_FROM_OLDEST));
+				SourceProcessors.streamMapP(Constants.IMAP_NAME_POSITION, NO_SELECTION_FILTER, NO_PROJECTION_FILTER, START_FROM_OLDEST))
+				;
 
         Vertex step2 = dag.newVertex("projection",
                 Processors.mapP((EventJournalMapEvent<String,TrkPt> event) 
@@ -261,7 +262,8 @@ public class Speedo {
                 ));
 
         Vertex step6 = dag.newVertex("removeStationary",
-        		Processors.filterP((Map.Entry<String,Speed> entry) -> entry.getValue().getMetresPerSecond() > 0));
+        			Processors.filterP((Map.Entry<String,Speed> entry) -> entry.getValue().getMetresPerSecond() > 0))
+				;
 
         Vertex step7 = dag.newVertex("logger", SpeedoLogger::new);
 
@@ -273,6 +275,7 @@ public class Speedo {
         dag.edge(Edge.between(step1, step2));
         dag.edge(Edge.between(step2, step3));
 		dag.edge(Edge.between(step3, step4));
+		dag.edge(Edge.from(step3,1).to(step7));
 		dag.edge(Edge.between(step4, step5));
 		dag.edge(Edge.between(step5, step6));
 		dag.edge(Edge.between(step6, step7));

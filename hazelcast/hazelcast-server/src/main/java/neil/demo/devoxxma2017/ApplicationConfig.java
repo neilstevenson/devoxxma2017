@@ -66,6 +66,8 @@ public class ApplicationConfig {
 			
 			// For proof, Management Centre on same host as Zookeeper
 			config.getManagementCenterConfig().setEnabled(true).setUrl("http://" + zookeeper + ":8080/mancenter");
+		} else {
+			config.getManagementCenterConfig().setEnabled(true).setUrl("http://127.0.0.1:8080/mancenter");
 		}
 
 		return config;
